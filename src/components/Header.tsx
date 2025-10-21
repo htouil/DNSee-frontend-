@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface recordsFormat {
   domain: string;
@@ -14,6 +14,8 @@ function Header() {
   const [inputValue, setInputValue] = useState("");
   const [isVisible, setIsVisible] = useState(true);
   const [records, setRecords] = useState([]);
+
+  const searchBtn = useRef<HTMLButtonElement | null>(null);
 
   // For testing:
   const recordColumns = ["domain", "a", "aaaa", "cname", "mx", "ns", "soa"];
@@ -38,33 +40,57 @@ function Header() {
     },
   ];
 
-  useEffect(() => {
-    async function fetchRecords() {
-      try {
-        const response = await fetch(`http://localhost/dns/${inputValue}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+  // useEffect(() => {
+  //   async function fetchRecords() {
+  //     try {
+  //       const response = await fetch(`http://localhost/dns/${inputValue}`, {
+  //         method: "GET",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //       });
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+  //       if (!response.ok) {
+  //         throw new Error(`HTTP error! status: ${response.status}`);
+  //       }
 
-        const data = await response.json();
-        setRecords(data);
-      } catch (err) {
-        console.error("Failed to fetch DNS records:", err);
-      }
+  //       const data = await response.json();
+  //       setRecords(data);
+  //     } catch (err) {
+  //       console.error("Failed to fetch DNS records:", err);
+  //     }
+  //   }
+    
+  //   fetchRecords();
+  // });
+
+  async function fetchRecords() {
+  try {
+    const response = await fetch(`http://localhost:5000/dns/${inputValue}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-    fetchRecords();
-  }, []);
+
+    const data = await response.json();
+    setRecords(data);
+  } catch (err) {
+    console.error("Failed to fetch DNS records:", err);
+  }
+}
   
   useEffect(() => {
-    const turnHidden = () => setIsVisible(false);
-    document.addEventListener("click", turnHidden);
-    return () => document.removeEventListener("click", turnHidden);
+    const displayData = () => {
+      fetchRecords();
+      setIsVisible(false);
+    }
+    document.addEventListener("click", displayData);
+    return () => document.removeEventListener("click", displayData);
   });
 
   return (
