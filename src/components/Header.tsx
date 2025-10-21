@@ -64,9 +64,9 @@ function Header() {
   //   fetchRecords();
   // });
 
-  async function fetchRecords() {
+  async function fetchRecords(value: string) {
   try {
-    const response = await fetch(`http://localhost:5000/dns/${inputValue}`, {
+    const response = await fetch(`http://localhost:5000/dns/${value}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -86,12 +86,12 @@ function Header() {
   
   useEffect(() => {
     const displayData = () => {
-      fetchRecords();
+      fetchRecords(inputValue);
       setIsVisible(false);
     }
-    document.addEventListener("click", displayData);
-    return () => document.removeEventListener("click", displayData);
-  });
+    searchBtn.current?.addEventListener("click", displayData);
+    return () => searchBtn.current?.removeEventListener("click", displayData);
+  }, [inputValue]);
 
   return (
     <div className="flex flex-col items-center gap-20 mt-20">
@@ -120,7 +120,7 @@ function Header() {
           onChange={(e) => setInputValue(e.target.value)}
           className="flex-grow text-white text-4xl h-full outline-none pl-4 border-l-4 border-white"
         />
-        <button className="border text-white text-3xl py-3 px-7 rounded-sm justify-self-end cursor-pointer">
+        <button ref={searchBtn} className="border text-white text-3xl py-3 px-7 rounded-sm justify-self-end cursor-pointer">
           See
         </button>
       </div>
