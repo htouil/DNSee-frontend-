@@ -39,22 +39,28 @@ function Header() {
   ];
 
   useEffect(() => {
-    fetch("http://localhost:3000/")
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Network response was not OK");
-        }
-        return res.json();
-      })
-      .then((data) => {
-        setRecords(data);
-        console.log(records);
-      })
-      .catch((err) => {
-        console.error("Fetch error:", err);
-      });
-  }, []);
+    async function fetchRecords() {
+      try {
+        const response = await fetch(`http://localhost/dns/${inputValue}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
 
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setRecords(data);
+      } catch (err) {
+        console.error("Failed to fetch DNS records:", err);
+      }
+    }
+    fetchRecords();
+  }, []);
+  
   useEffect(() => {
     const turnHidden = () => setIsVisible(false);
     document.addEventListener("click", turnHidden);
@@ -84,6 +90,8 @@ function Header() {
         <input
           type="text"
           placeholder="Enter domain to search..."
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
           className="flex-grow text-white text-4xl h-full outline-none pl-4 border-l-4 border-white"
         />
         <button className="border text-white text-3xl py-3 px-7 rounded-sm justify-self-end cursor-pointer">
