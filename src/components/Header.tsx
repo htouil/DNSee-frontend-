@@ -40,58 +40,34 @@ function Header() {
     },
   ];
 
-  // useEffect(() => {
-  //   async function fetchRecords() {
-  //     try {
-  //       const response = await fetch(`http://localhost/dns/${inputValue}`, {
-  //         method: "GET",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //       });
-
-  //       if (!response.ok) {
-  //         throw new Error(`HTTP error! status: ${response.status}`);
-  //       }
-
-  //       const data = await response.json();
-  //       setRecords(data);
-  //     } catch (err) {
-  //       console.error("Failed to fetch DNS records:", err);
-  //     }
-  //   }
-    
-  //   fetchRecords();
-  // });
-
   async function fetchRecords(value: string) {
-  try {
-    const response = await fetch(`http://localhost:5000/dns/${value}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    try {
+      const response = await fetch(`http://localhost:5000/dns/${value}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setRecords(data);
+    } catch (err) {
+      console.error("Failed to fetch DNS records:", err);
     }
-
-    const data = await response.json();
-    setRecords(data);
-  } catch (err) {
-    console.error("Failed to fetch DNS records:", err);
   }
-}
-  
-  useEffect(() => {
-    const displayData = () => {
-      fetchRecords(inputValue);
-      setIsVisible(false);
-    }
-    searchBtn.current?.addEventListener("click", displayData);
-    return () => searchBtn.current?.removeEventListener("click", displayData);
-  }, [inputValue]);
+
+  // useEffect(() => {
+  //   const displayData = async () => {
+  //     await fetchRecords(inputValue);
+  //     setIsVisible(false);
+  //   };
+  //   searchBtn.current?.addEventListener("click", displayData);
+  //   return () => searchBtn.current?.removeEventListener("click", displayData);
+  // }, [inputValue]);
 
   return (
     <div className="flex flex-col items-center gap-20 mt-20">
@@ -120,7 +96,13 @@ function Header() {
           onChange={(e) => setInputValue(e.target.value)}
           className="flex-grow text-white text-4xl h-full outline-none pl-4 border-l-4 border-white"
         />
-        <button ref={searchBtn} className="border text-white text-3xl py-3 px-7 rounded-sm justify-self-end cursor-pointer">
+        <button
+          onClick={async () => {
+            await fetchRecords(inputValue);
+            setIsVisible(false);
+          }}
+          className="border text-white text-3xl py-3 px-7 rounded-sm justify-self-end cursor-pointer"
+        >
           See
         </button>
       </div>
